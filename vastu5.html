@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vastu Check Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff5e6;
+      color: #333;
+      padding: 3vw;
+      margin: 0;
+      min-height: 100vh;
+      box-sizing: border-box;
+      font-size: 2.5vw;
+      line-height: 1.5;
+    }
+    h2, h3, label, select, button, input, p, ul, li, .footer {
+      font-size: 2.5vw;
+    }
+    select, button, input {
+      width: 100%;
+      padding: 2.5vw;
+      margin: 1vw 0;
+      border-radius: 2vw;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      min-height: 12vw;
+    }
+    button {
+      background: #27ae60;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 3vw;
+      background: #fdf2e9;
+      padding: 3vw;
+      border-radius: 2vw;
+    }
+    .footer {
+      margin-top: 5vw;
+      font-weight: bold;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 2vw;
+    }
+    .footer a {
+      color: #333;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    .language-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 2vw;
+      margin-bottom: 3vw;
+    }
+    .language-toggle label {
+      margin: 0;
+    }
+    .language-toggle select {
+      width: auto;
+      min-width: 25vw;
+    }
+    .vastu-plan {
+      margin-top: 3vw;
+      display: grid;
+      gap: 1vw;
+      border: 1px solid #ccc;
+      padding: 2vw;
+      background: #fff;
+      border-radius: 2vw;
+    }
+    .vastu-plan div {
+      border: 1px solid #ddd;
+      padding: 2vw;
+      text-align: center;
+      overflow: hidden;
+      min-height: 15vw;
+      font-size: 1.8vw;
+    }
+    .vastu-plan .center {
+      background: #f0f0f0;
+      font-weight: bold;
+    }
+    .new-vastu-section {
+      margin-bottom: 5vw;
+      padding: 3vw;
+      background: #f9e8d9;
+      border-radius: 2vw;
+    }
+    .direction-inputs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2vw;
+    }
+    .dimension-input {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2vw;
+      align-items: center;
+    }
+
+    /* Mobile-friendly adjustments */
+    @media (max-width: 600px) {
+      body, h2, h3, label, select, button, input, p, ul, li, .footer {
+        font-size: 3vw;
+      }
+      body {
+        padding: 4vw;
+      }
+      select, button, input {
+        padding: 3vw;
+        min-height: 14vw;
+      }
+      .vastu-plan {
+        grid-template-columns: 1fr !important;
+        grid-auto-rows: auto !important;
+      }
+      .vastu-plan div {
+        min-height: 20vw;
+        font-size: 2.2vw;
+      }
+      .direction-inputs {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🏠 वास्तु जांच उपकरण | Vastu Check Tool</h2>
+  <div class="language-toggle">
+    <label for="language">भाषा | Language:</label>
+    <select id="language" onchange="toggleLanguage()">
+      <option value="en">English</option>
+      <option value="hi">हिंदी</option>
+    </select>
+  </div>
+  <p><strong>By Ar. Prabal R. Satiwale</strong> | 📍 Amravati, Nagpur & Vidarbha</p>
+
+  <!-- New Vastu Plan Section -->
+  <div class="new-vastu-section">
+    <h3 id="newVastuHeading">New Vastu Plan</h3>
+    <div class="dimension-input">
+      <div>
+        <label id="plotFrontLabel">Plot Front Dimension (Width):</label>
+        <input type="number" id="plotFront" min="1" step="0.1" placeholder="Enter width">
+      </div>
+      <select id="plotFrontUnit">
+        <option value="meters">Meters</option>
+        <option value="feet">Feet</option>
+      </select>
+    </div>
+    <div class="dimension-input">
+      <div>
+        <label id="plotVerticalLabel">Plot Vertical Dimension (Length):</label>
+        <input type="number" id="plotVertical" min="1" step="0.1" placeholder="Enter length">
+      </div>
+      <select id="plotVerticalUnit">
+        <option value="meters">Meters</option>
+        <option value="feet">Feet</option>
+      </select>
+    </div>
+    <div class="direction-inputs">
+      <div>
+        <label id="eastSideLabel">East Side:</label>
+        <select id="eastSide">
+          <option value="right">Right</option>
+          <option value="top">Top</option>
+          <option value="bottom">Bottom</option>
+          <option value="left">Left</option>
+        </select>
+      </div>
+      <div>
+        <label id="westSideLabel">West Side:</label>
+        <select id="westSide">
+          <option value="left">Left</option>
+          <option value="top">Top</option>
+          <option value="right">Right</option>
+          <option value="bottom">Bottom</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="generateNewVastuPlan()">Generate Vastu Plan</button>
+    <div class="result" id="newVastuResult"></div>
+  </div>
+
+  <!-- Existing Vastu Check Section -->
+  <label id="propertyTypeLabel" for="propertyType">Property Type:</label>
+  <select id="propertyType" onchange="updateRoomOptions()">
+    <option value="home">Home</option>
+    <option value="shop">Shop</option>
+    <option value="factory">Factory</option>
+  </select>
+
+  <div id="roomInputs"></div>
+
+  <button onclick="checkVastu()">Check Vastu</button>
+
+  <div class="result" id="resultBox"></div>
+
+  <div class="footer">
+    <div>📲 <a href="https://wa.me/918830236556" target="_blank">WhatsApp Ar. Prabal for Consultation</a></div>
+    <div><a href="contact.html">Contact Us</a></div>
+  </div>
+
+  <script>
+    const roomOptions = {
+      home: ['Entrance', 'Kitchen', 'Master Bedroom', 'Kids Room', 'Guest Room', 'Living Room', 'Toilet', 'Puja Room', 'Staircase', 'Boring/Underground Tank', 'Overhead Tank'],
+      shop: ['Entrance', 'Cash Counter', 'Product Display', 'Puja Area', 'Staff Zone', 'Toilet'],
+      factory: ['Entrance', 'Heavy Machines', 'Light Machines', 'Boiler', 'Raw Materials', 'Finished Goods', 'Spare Parts Room', 'Workshop', 'Canteen', 'Factory Office']
+    };
+
+    const vastuRules = {
+      'Entrance': ['North', 'East', 'North-East'],
+      'Kitchen': ['South-East', 'North-East'],
+      'Master Bedroom': ['South', 'South-West'],
+      'Kids Room': ['South'],
+      'Guest Room': ['North-East'],
+      'Living Room': ['East'],
+      'Toilet': ['South-West', 'West', 'North-West'],
+      'Puja Room': ['North-East'],
+      'Staircase': ['South-East'],
+      'Boring/Underground Tank': ['North', 'North-East', 'North-West'],
+      'Overhead Tank': ['South-West'],
+      'Cash Counter': ['North-West'],
+      'Product Display': ['East'],
+      'Puja Area': ['North-East'],
+      'Staff Zone': ['North-West'],
+      'Heavy Machines': ['South-West'],
+      'Light Machines': ['North-West'],
+      'Boiler': ['South-East'],
+      'Raw Materials': ['South-West'],
+      'Finished Goods': ['North-West'],
+      'Spare Parts Room': ['South-West'],
+      'Workshop': ['East'],
+      'Canteen': ['South-East'],
+      'Factory Office': ['North']
+    };
+
+    const translations = {
+      en: {
+        propertyTypeLabel: 'Property Type:',
+        checkButton: 'Check Vastu',
+        resultHeading: 'Vastu Score',
+        planHeading: 'Recommended Vastu Plan',
+        newVastuHeading: 'New Vastu Plan',
+        plotFrontLabel: 'Plot Front Dimension (Width):',
+        plotVerticalLabel: 'Plot Vertical Dimension (Length):',
+        eastSideLabel: 'East Side:',
+        westSideLabel: 'West Side:',
+        generatePlanButton: 'Generate Vastu Plan',
+        dimensions: 'Plot Dimensions',
+        recommendations: 'Vastu Recommendations',
+        unitOptions: {
+          meters: 'Meters',
+          feet: 'Feet'
+        },
+        sideOptions: {
+          top: 'Top',
+          right: 'Right',
+          bottom: 'Bottom',
+          left: 'Left'
+        },
+        directions: ['North', 'East', 'South', 'West', 'North-East', 'South-East', 'South-West', 'North-West'],
+        center: 'Center (Keep Empty)',
+        rooms: {
+          'Entrance': 'Entrance',
+          'Kitchen': 'Kitchen',
+          'Master Bedroom': 'Master Bedroom',
+          'Kids Room': 'Kids Room',
+          'Guest Room': 'Guest Room',
+          'Living Room': 'Living Room',
+          'Toilet': 'Toilet',
+          'Puja Room': 'Puja Room',
+          'Staircase': 'Staircase',
+          'Boring/Underground Tank': 'Boring/Underground Tank',
+          'Overhead Tank': 'Overhead Tank',
+          'Cash Counter': 'Cash Counter',
+          'Product Display': 'Product Display',
+          'Puja Area': 'Puja Area',
+          'Staff Zone': 'Staff Zone',
+          'Heavy Machines': 'Heavy Machines',
+          'Light Machines': 'Light Machines',
+          'Boiler': 'Boiler',
+          'Raw Materials': 'Raw Materials',
+          'Finished Goods': 'Finished Goods',
+          'Spare Parts Room': 'Spare Parts Room',
+          'Workshop': 'Workshop',
+          'Canteen': 'Canteen',
+          'Factory Office': 'Factory Office'
+        },
+        resultMessages: {
+          wellPlaced: 'is well-placed in',
+          betterPlaced: 'is better placed in'
+        }
+      },
+      hi: {
+        propertyTypeLabel: 'संपत्ति प्रकार:',
+        checkButton: 'वास्तु जांचें',
+        resultHeading: 'वास्तु स्कोर',
+        planHeading: 'अनुशंसित वास्तु योजना',
+        newVastuHeading: 'नई वास्तु योजना',
+        plotFrontLabel: 'भूखंड की सामने की चौड़ाई:',
+        plotVerticalLabel: 'भूखंड की लंबवत लंबाई:',
+        eastSideLabel: 'पूर्व दिशा:',
+        westSideLabel: 'पश्चिम दिशा:',
+        generatePlanButton: 'वास्तु योजना उत्पन्न करें',
+        dimensions: 'भूखंड के आयाम',
+        recommendations: 'वास्तु अनुशंसाएं',
+        unitOptions: {
+          meters: 'मीटर',
+          feet: 'फीट'
+        },
+        sideOptions: {
+          top: 'ऊपर',
+          right: 'दाएं',
+          bottom: 'नीचे',
+          left: 'बाएं'
+        },
+        directions: ['उत्तर', 'पूर्व', 'दक्षिण', 'पश्चिम', 'उत्तर-पूर्व', 'दक्षिण-पूर्व', 'दक्षिण-पश्चिम', 'उत्तर-पश्चिम'],
+        center: 'मध्य (खाली रखें)',
+        rooms: {
+          'Entrance': 'प्रवेश द्वार',
+          'Kitchen': 'रसोई',
+          'Master Bedroom': 'मास्टर बेडरूम',
+          'Kids Room': 'बच्चों का कमरा',
+          'Guest Room': 'अतिथि कक्ष',
+          'Living Room': 'लिविंग रूम',
+          'Toilet': 'शौचालय',
+          'Puja Room': 'पूजा कक्ष',
+          'Staircase': 'सीढ़ी',
+          'Boring/Underground Tank': 'बोरिंग/भूमिगत टैंक',
+          'Overhead Tank': 'ओवरहेड टैंक',
+          'Cash Counter': 'नकदी काउंटर',
+          'Product Display': 'उत्पाद प्रदर्शन',
+          'Puja Area': 'पूजा क्षेत्र',
+          'Staff Zone': 'कर्मचारी क्षेत्र',
+          'Heavy Machines': 'भारी मशीनें',
+          'Light Machines': 'हल्की मशीनें',
+          'Boiler': 'बॉयलर',
+          'Raw Materials': 'कच्चा माल',
+          'Finished Goods': 'तैयार माल',
+          'Spare Parts Room': 'स्पेयर पार्ट्स कक्ष',
+          'Workshop': 'कार्यशाला',
+          'Canteen': 'कैंटीन',
+          'Factory Office': 'फैक्ट्री कार्यालय'
+        },
+        resultMessages: {
+          wellPlaced: 'उचित स्थान पर है',
+          betterPlaced: 'बेहतर होगा यदि इसे यहां रखा जाए'
+        }
+      }
+    };
+
+    const directions = ['North', 'East', 'South', 'West', 'North-East', 'South-East', 'South-West', 'North-West'];
+
+    function updateRoomOptions() {
+      const lang = document.getElementById('language').value;
+      const propertyType = document.getElementById('propertyType').value;
+      const roomInputsDiv = document.getElementById('roomInputs');
+      roomInputsDiv.innerHTML = '';
+      roomOptions[propertyType].forEach(room => {
+        const label = document.createElement('label');
+        label.setAttribute('for', `dir-${room}`);
+        label.textContent = translations[lang].rooms[room] + ' Direction:';
+        const select = document.createElement('select');
+        select.id = `dir-${room}`;
+        select.setAttribute('aria-label', `${translations[lang].rooms[room]} direction`);
+        translations[lang].directions.forEach((dir, index) => {
+          const option = document.createElement('option');
+          option.value = directions[index];
+          option.textContent = dir;
+          select.appendChild(option);
+        });
+        roomInputsDiv.appendChild(label);
+        roomInputsDiv.appendChild(select);
+      });
+    }
+
+    function generateVastuPlan(lang, propertyType) {
+      const plan = {
+        'North-West': [],
+        'North': [],
+        'North-East': [],
+        'West': [],
+        'Center': translations[lang].center,
+        'East': [],
+        'South-West': [],
+        'South': [],
+        'South-East': []
+      };
+
+      roomOptions[propertyType].forEach(room => {
+        const idealDirections = vastuRules[room];
+        if (idealDirections) {
+          idealDirections.forEach(dir => {
+            if (plan[dir]) {
+              plan[dir].push(translations[lang].rooms[room]);
+            }
+          });
+        }
+      });
+
+      let planHtml = `<h3>${translations[lang].planHeading}</h3><div class="vastu-plan">`;
+      const gridOrder = ['North-West', 'North', 'North-East', 'West', 'Center', 'East', 'South-West', 'South', 'South-East'];
+      gridOrder.forEach(dir => {
+        const content = Array.isArray(plan[dir]) ? plan[dir].join(', ') || '-' : plan[dir];
+        const className = dir === 'Center' ? 'center' : '';
+        planHtml += `<div class="${className}">${translations[lang].directions[directions.indexOf(dir)]}: ${content}</div>`;
+      });
+      planHtml += '</div>';
+      return planHtml;
+    }
+
+    function checkVastu() {
+      const lang = document.getElementById('language').value;
+      const propertyType = document.getElementById('propertyType').value;
+      let score = 0;
+      let remarks = [];
+      roomOptions[propertyType].forEach(room => {
+        const direction = document.getElementById(`dir-${room}`).value;
+        const translatedRoom = translations[lang].rooms[room];
+        const translatedDirection = translations[lang].directions[directions.indexOf(direction)];
+        if (vastuRules[room] && vastuRules[room].includes(direction)) {
+          score++;
+          remarks.push(`✅ ${translatedRoom} ${translations[lang].resultMessages.wellPlaced} ${translatedDirection}.`);
+        } else {
+          remarks.push(`❌ ${translatedRoom} ${translations[lang].resultMessages.betterPlaced} ${vastuRules[room] ? vastuRules[room].map(dir => translations[lang].directions[directions.indexOf(dir)]).join(', ') : 'उचित दिशा में'}.`);
+        }
+      });
+      const total = roomOptions[propertyType].length;
+      const resultBox = document.getElementById('resultBox');
+      const planHtml = generateVastuPlan(lang, propertyType);
+      resultBox.innerHTML = `<h3>${translations[lang].resultHeading}: ${score}/${total}</h3>` + remarks.join('<br>') + planHtml;
+    }
+
+    function generateNewVastuPlan() {
+      const lang = document.getElementById('language').value;
+      const propertyType = document.getElementById('propertyType').value;
+      const frontDim = parseFloat(document.getElementById('plotFront').value);
+      const verticalDim = parseFloat(document.getElementById('plotVertical').value);
+      const frontUnit = document.getElementById('plotFrontUnit').value;
+      const verticalUnit = document.getElementById('plotVerticalUnit').value;
+      const eastSide = document.getElementById('eastSide').value;
+      const westSide = document.getElementById('westSide').value;
+
+      // Validate dimensions
+      if (!frontDim || !verticalDim || frontDim <= 0 || verticalDim <= 0) {
+        document.getElementById('newVastuResult').innerHTML = `<p style="color: red;">${lang === 'en' ? 'Please enter valid dimensions.' : 'कृपया मान्य आयाम दर्ज करें।'}</p>`;
+        return;
+      }
+
+      // Validate directions
+      if (eastSide === westSide) {
+        document.getElementById('newVastuResult').innerHTML = `<p style="color: red;">${lang === 'en' ? 'East and West sides must be different.' : 'पूर्व और पश्चिम दिशाएं भिन्न होनी चाहिए।'}</p>`;
+        return;
+      }
+
+      // Convert dimensions to meters
+      const frontMeters = frontUnit === 'meters' ? frontDim : frontDim * 0.3048;
+      const verticalMeters = verticalUnit === 'meters' ? verticalDim : verticalDim * 0.3048;
+      const frontFeet = frontUnit === 'feet' ? frontDim : frontMeters * 3.28084;
+      const verticalFeet = verticalUnit === 'feet' ? verticalDim : verticalMeters * 3.28084;
+
+      // Infer North and South based on East and West
+      const sides = ['top', 'right', 'bottom', 'left'];
+      const usedSides = [eastSide, westSide];
+      const remainingSides = sides.filter(side => !usedSides.includes(side));
+      const northSide = remainingSides[0];
+      const southSide = remainingSides[1];
+
+      // Map plot sides to actual directions
+      const plotOrientation = {
+        [northSide]: 'North',
+        [eastSide]: 'East',
+        [southSide]: 'South',
+        [westSide]: 'West'
+      };
+
+      // Initialize the plan grid
+      const plan = {
+        'North-West': [],
+        'North': [],
+        'North-East': [],
+        'West': [],
+        'Center': translations[lang].center,
+        'East': [],
+        'South-West': [],
+        'South': [],
+        'South-East': []
+      };
+
+      // Assign rooms based on Vastu rules
+      roomOptions[propertyType].forEach(room => {
+        const idealDirections = vastuRules[room];
+        if (idealDirections) {
+          idealDirections.forEach(dir => {
+            if (plan[dir]) {
+              plan[dir].push(translations[lang].rooms[room]);
+            }
+          });
+        }
+      });
+
+      // Generate Vastu recommendations in text
+      let recommendationsHtml = `<h3>${translations[lang].recommendations}</h3><ul>`;
+      roomOptions[propertyType].forEach(room => {
+        const idealDirections = vastuRules[room] || [];
+        const translatedRoom = translations[lang].rooms[room];
+        const translatedDirections = idealDirections.map(dir => translations[lang].directions[directions.indexOf(dir)]).join(', ') || (lang === 'en' ? 'appropriate direction' : 'उचित दिशा');
+        recommendationsHtml += `<li>${translatedRoom}: ${translatedDirections}</li>`;
+      });
+      recommendationsHtml += '</ul>';
+
+      // Adjust grid based on plot orientation
+      const gridMap = {
+        top: { 'North-West': 0, 'North': 1, 'North-East': 2, 'West': 3, 'Center': 4, 'East': 5, 'South-West': 6, 'South': 7, 'South-East': 8 },
+        right: { 'North-West': 2, 'North': 5, 'North-East': 8, 'West': 1, 'Center': 4, 'East': 7, 'South-West': 0, 'South': 3, 'South-East': 6 },
+        bottom: { 'North-West': 8, 'North': 7, 'North-East': 6, 'West': 5, 'Center': 4, 'East': 3, 'South-West': 2, 'South': 1, 'South-East': 0 },
+        left: { 'North-West': 6, 'North': 3, 'North-East': 0, 'West': 7, 'Center': 4, 'East': 1, 'South-West': 8, 'South': 5, 'South-East': 2 }
+      };
+
+      const gridOrder = Array(9).fill(null);
+      const orientationMap = gridMap[northSide];
+      Object.keys(orientationMap).forEach(dir => {
+        gridOrder[orientationMap[dir]] = dir;
+      });
+
+      // Calculate aspect ratio for realistic grid
+      const aspectRatio = verticalMeters / frontMeters;
+      const baseWidth = window.innerWidth < 600 ? (window.innerWidth - 10 * 2 - 2 * 2) / 3 : 100;
+      const baseHeight = baseWidth * aspectRatio;
+      let planHtml = `<h3>${translations[lang].planHeading}</h3>`;
+      planHtml += `<p>${translations[lang].dimensions}: ${frontMeters.toFixed(1)}m / ${frontFeet.toFixed(1)}ft x ${verticalMeters.toFixed(1)}m / ${verticalFeet.toFixed(1)}ft</p>`;
+      planHtml += `<div class="vastu-plan" style="grid-template-columns: repeat(3, ${baseWidth}px); grid-auto-rows: ${baseHeight}px;">`;
+      gridOrder.forEach(dir => {
+        const content = Array.isArray(plan[dir]) ? plan[dir].join(', ') || '-' : plan[dir];
+        const className = dir === 'Center' ? 'center' : '';
+        const actualDir = translations[lang].directions[directions.indexOf(dir)];
+        planHtml += `<div class="${className}">${actualDir}: ${content}</div>`;
+      });
+      planHtml += '</div>';
+
+      document.getElementById('newVastuResult').innerHTML = recommendationsHtml + planHtml;
+    }
+
+    function toggleLanguage() {
+      const lang = document.getElementById('language').value;
+      document.getElementById('propertyTypeLabel').textContent = translations[lang].propertyTypeLabel;
+      document.querySelector('button[onclick="checkVastu()"]').textContent = translations[lang].checkButton;
+      document.getElementById('newVastuHeading').textContent = translations[lang].newVastuHeading;
+      document.getElementById('plotFrontLabel').textContent = translations[lang].plotFrontLabel;
+      document.getElementById('plotVerticalLabel').textContent = translations[lang].plotVerticalLabel;
+      document.getElementById('eastSideLabel').textContent = translations[lang].eastSideLabel;
+      document.getElementById('westSideLabel').textContent = translations[lang].westSideLabel;
+      document.querySelector('button[onclick="generateNewVastuPlan()"]').textContent = translations[lang].generatePlanButton;
+
+      // Update unit options
+      const unitSelects = ['plotFrontUnit', 'plotVerticalUnit'];
+      unitSelects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        const value = select.value;
+        select.innerHTML = '';
+        ['meters', 'feet'].forEach(unit => {
+          const option = document.createElement('option');
+          option.value = unit;
+          option.textContent = translations[lang].unitOptions[unit];
+          select.appendChild(option);
+        });
+        select.value = value;
+      });
+
+      // Update side options
+      const sideSelects = ['eastSide', 'westSide'];
+      sideSelects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        const value = select.value;
+        select.innerHTML = '';
+        ['top', 'right', 'bottom', 'left'].forEach(side => {
+          const option = document.createElement('option');
+          option.value = side;
+          option.textContent = translations[lang].sideOptions[side];
+          select.appendChild(option);
+        });
+        select.value = value;
+      });
+
+      updateRoomOptions();
+      document.getElementById('resultBox').innerHTML = '';
+      document.getElementById('newVastuResult').innerHTML = '';
+    }
+
+    // Initialize default room options
+    updateRoomOptions();
+  </script>
+
+</body>
+</html>
