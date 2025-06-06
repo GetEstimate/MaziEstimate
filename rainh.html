@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rainwater Harvesting Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 font-sans overflow-y-auto min-h-screen">
+  <div class="max-w-2xl w-full mx-auto mt-6 bg-white shadow-lg rounded-xl p-4 sm:p-6 overflow-hidden">
+    <h1 class="text-2xl font-bold text-center text-blue-700 mb-6">💧 Rainwater Harvesting Planner / वर्षा जल संचयन नियोजक</h1>
+ <div style="background: #ffc107; color: #002147; font-weight: bold; padding: 0.7rem 1rem; text-align: center; overflow: hidden; white-space: nowrap;">
+    <marquee behavior="scroll" direction="left">Note: For Construction, Designing, Consultation, Supervision, Material related work contact Ar. Prabal (contact number below)</marquee><br><marquee behavior="scroll" direction="left" style="color: blue;">Plot, Flats, Land, Shops, Bunglow, Commercial Spaces, Office Space - Available For Buy and Sell. Contact: 8830236556 | प्लॉट, फ्लैट्स, जमीन, दुकानें, बंगला, कमर्शियल स्पेस, ऑफिस स्पेस - खरीदने और बेचने के लिए संपर्क करें: 8830236556</marquee>
+  </div>
+
+    <!-- Input Fields -->
+    <label class="block text-gray-700 font-semibold mb-1">🏠 Roof Area:</label>
+    <div class="flex flex-col sm:flex-row mb-4 space-y-2 sm:space-y-0 sm:space-x-2">
+      <input type="number" id="roofArea" class="flex-1 p-2 border rounded" placeholder="e.g., 100" />
+      <select id="areaUnit" class="w-full sm:w-32 p-2 border rounded">
+        <option value="sqm">sq.m</option>
+        <option value="sqft">sq.ft</option>
+      </select>
+    </div>
+
+    <label class="block text-gray-700 font-semibold mb-1">⛈ Average Annual Rainfall (mm):</label>
+    <input type="number" id="rainfall" class="w-full p-2 border rounded mb-4" placeholder="e.g., 1128" value="1128" />
+
+    <label class="block text-gray-700 font-semibold mb-1">🌍 Select State & City:</label>
+    <select id="citySelector" class="w-full p-2 border rounded mb-4">
+  <option value="">-- Select City --</option>
+  <option value="Nagpur">Nagpur, Maharashtra</option>
+  <option value="Mumbai">Mumbai, Maharashtra</option>
+  <option value="Pune">Pune, Maharashtra</option>
+  <option value="Delhi">Delhi</option>
+  <option value="Bhopal">Bhopal, Madhya Pradesh</option>
+  <option value="Chennai">Chennai, Tamil Nadu</option>
+  <option value="Kolkata">Kolkata, West Bengal</option>
+  <option value="Bengaluru">Bengaluru, Karnataka</option>
+  <option value="Jaipur">Jaipur, Rajasthan</option>
+  <option value="Jodhpur">Jodhpur, Rajasthan</option>
+  <option value="Patna">Patna, Bihar</option>
+  <option value="Ranchi">Ranchi, Jharkhand</option>
+  <option value="Guwahati">Guwahati, Assam</option>
+  <option value="Hyderabad">Hyderabad, Telangana</option>
+  <option value="Ahmedabad">Ahmedabad, Gujarat</option>
+  <option value="Lucknow">Lucknow, Uttar Pradesh</option>
+  <option value="Imphal">Imphal, Manipur</option>
+  <option value="Itanagar">Itanagar, Arunachal Pradesh</option>
+  <option value="Shimla">Shimla, Himachal Pradesh</option>
+  <option value="Dehradun">Dehradun, Uttarakhand</option>
+  <option value="Gangtok">Gangtok, Sikkim</option>
+  <option value="Panaji">Panaji, Goa</option>
+  <option value="Thiruvananthapuram">Thiruvananthapuram, Kerala</option>
+  <option value="Aizawl">Aizawl, Mizoram</option>
+  <option value="Agartala">Agartala, Tripura</option>
+  <option value="Dispur">Dispur, Assam</option>
+  <option value="Port Blair">Port Blair, Andaman & Nicobar</option>
+  <option value="Kavaratti">Kavaratti, Lakshadweep</option>
+  <option value="Puducherry">Puducherry</option>
+  <option value="Daman">Daman, Daman & Diu</option>
+  <option value="Chandigarh">Chandigarh</option>
+  <option value="Shillong">Shillong, Meghalaya</option>
+</select>
+
+    <label class="block text-gray-700 font-semibold mb-1">⚙️ Runoff Coefficient (0.6 - 0.8):</label>
+    <input type="number" id="coefficient" class="w-full p-2 border rounded mb-4" step="0.01" value="0.7" min="0.6" max="0.8" />
+
+    <label class="block text-gray-700 font-semibold mb-1">💧 Select Tank Type:</label>
+    <select id="tankType" class="w-full p-2 border rounded mb-6">
+      <option value="ferro">Ferro-cement Tank (~₹1.25/litre)</option>
+      <option value="plastic">Plastic Tank (~₹2.75/litre)</option>
+      <option value="hdpe">HDPE Modular Tank (~₹3.00/litre)</option>
+      <option value="rcc">RCC Tank (~₹1.80/litre)</option>
+      <option value="underground">Underground Concrete Tank (~₹2.25/litre)</option>
+    </select>
+
+    <button onclick="calculateHarvest()" class="w-full bg-blue-600 text-white font-semibold py-3 rounded hover:bg-blue-700 transition">Calculate</button>
+
+    <div id="results" class="mt-6 text-lg text-gray-800 font-medium space-y-3"></div>
+
+    <div class="mt-8">
+      <h2 class="text-xl font-bold mb-2">📊 Visual Representation</h2>
+      <div class="w-full max-w-md mx-auto bg-blue-100 p-4 rounded shadow text-sm">
+        <svg viewBox="0 0 360 240" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
+          <!-- Roof -->
+          <polygon points="120,50 180,10 240,50" fill="#8ecae6" stroke="#023047" stroke-width="2" />
+          <rect x="130" y="50" width="100" height="40" fill="#219ebc" stroke="#023047" stroke-width="2" />
+          <text x="180" y="75" text-anchor="middle" fill="white" font-size="12">Roof Surface</text>
+
+          <!-- Rain drops -->
+          <g fill="#3b82f6">
+            <circle cx="150" cy="0" r="4">
+              <animate attributeName="cy" from="0" to="50" dur="1s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="180" cy="-10" r="4">
+              <animate attributeName="cy" from="-10" to="50" dur="1.2s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="210" cy="-5" r="4">
+              <animate attributeName="cy" from="-5" to="50" dur="1.4s" repeatCount="indefinite" />
+            </circle>
+          </g>
+
+          <!-- Pipe -->
+          <rect x="175" y="90" width="10" height="60" fill="#6d28d9" />
+
+          <!-- Tank -->
+          <rect x="120" y="160" width="120" height="50" fill="#a7f3d0" stroke="#047857" stroke-width="2" rx="6" />
+          <text x="180" y="190" text-anchor="middle" fill="#047857" font-size="13">Storage Tank</text>
+        </svg>
+        <p class="text-center mt-2">Diagram: Rain falls on roof, flows through pipe to storage tank.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cityRainfallData = {
+  "Nagpur": 1128,
+  "Mumbai": 2422,
+  "Pune": 722,
+  "Delhi": 800,
+  "Bhopal": 1206,
+  "Chennai": 1400,
+  "Kolkata": 1582,
+  "Bengaluru": 986,
+  "Jaipur": 636,
+  "Jodhpur": 363,
+  "Patna": 1118,
+  "Ranchi": 1430,
+  "Guwahati": 1624,
+  "Hyderabad": 812,
+  "Ahmedabad": 782,
+  "Lucknow": 1010,
+  "Imphal": 1230,
+  "Itanagar": 2782,
+  "Shimla": 1520,
+  "Dehradun": 2100,
+  "Gangtok": 3490,
+  "Panaji": 2890,
+  "Thiruvananthapuram": 1814,
+  "Aizawl": 2300,
+  "Agartala": 2200,
+  "Dispur": 2700,
+  "Port Blair": 3040,
+  "Kavaratti": 1600,
+  "Puducherry": 1240,
+  "Daman": 1680,
+  "Chandigarh": 1110,
+  "Shillong": 3300
+};
+
+    document.getElementById("citySelector").addEventListener("change", function () {
+      const selectedCity = this.value;
+      if (cityRainfallData[selectedCity]) {
+        document.getElementById("rainfall").value = cityRainfallData[selectedCity];
+      }
+    });
+
+    function calculateHarvest() {
+      let area = parseFloat(document.getElementById('roofArea').value);
+      const unit = document.getElementById('areaUnit').value;
+      if (unit === 'sqft') area *= 0.092903;
+
+      const rain = parseFloat(document.getElementById('rainfall').value);
+      const coeff = parseFloat(document.getElementById('coefficient').value);
+      const tankType = document.getElementById('tankType').value;
+
+      if (isNaN(area) || isNaN(rain) || isNaN(coeff)) {
+        alert('Please enter valid numbers');
+        return;
+      }
+
+      const harvestedLitres = area * rain * coeff;
+      const suggestedTank = harvestedLitres * 0.3;
+
+      let costPerLitre = {
+        'ferro': 1.25,
+        'plastic': 2.75,
+        'hdpe': 3.0,
+        'rcc': 1.8,
+        'underground': 2.25
+      }[tankType];
+
+      const estimatedTankCost = suggestedTank * costPerLitre;
+
+      document.getElementById('results').innerHTML = `
+        <p>💧 Estimated Harvested: <strong>${Math.round(harvestedLitres)} litres/year</strong></p>
+        <p>🛢️ Suggested Tank Size (30%): <strong>${Math.round(suggestedTank)} litres</strong></p>
+        <p>💸 Estimated Tank Cost: <strong>₹${Math.round(estimatedTankCost)}</strong></p>
+      `;
+    }
+  </script>
+</body>
+</html>
