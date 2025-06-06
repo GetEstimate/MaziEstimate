@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FSI Calculator – Maharashtra Government</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f2f2f2; margin: 0; padding: 0; color: #222; }
+    header { background-color: #002147; color: white; text-align: center; padding: 1.5rem 1rem; position: relative; border-bottom: 4px solid #ffc107; }
+    header img.left { position: absolute; left: 1rem; top: 1rem; height: 60px; }
+    header img.right { position: absolute; right: 1rem; top: 1rem; height: 60px; }
+    .container { max-width: 800px; background: white; margin: 2rem auto; padding: 2rem; border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 1.2rem; font-weight: 500; }
+    input, select { width: 100%; padding: 0.6rem; margin-top: 0.3rem; border: 1px solid #bbb; border-radius: 4px; font-size: 1rem; }
+    input[type="checkbox"] { width: auto; margin-right: 0.5rem; }
+    button { background-color: #004085; color: white; padding: 0.8rem; width: 100%; font-size: 1.1rem; border: none; border-radius: 4px; margin-top: 1.5rem; cursor: pointer; }
+    #output, #costOutput { margin-top: 2rem; background: #e9ecef; padding: 1rem; border-left: 5px solid #004085; border-radius: 4px; }
+    .about { text-align: center; padding: 2rem; background: #004085; color: white; font-size: 0.95rem; }
+    .about strong { color: #ffc107; font-size: 1.05rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://scontent.fnag10-1.fna.fbcdn.net/v/t39.30808-1/307321058_425105246394065_563982831305673821_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=106&ccb=1-7&_nc_sid=2d3e12&_nc_ohc=ctTqfsYqtE4Q7kNvwHHR_tv&_nc_oc=Adl4GxZny-AO2A5MoFsuYJuMe1LhK99kmIQ6VqhImm9Gg7kyGmlsKFXhW67VDzkhme34qRa0EgWUaEZ5g4_zrx6G&_nc_zt=24&_nc_ht=scontent.fnag10-1.fna&_nc_gid=D3ZRgdFQycxgNGes46zrRw&oh=00_AfMR9YXuS5oCuHVQFnUlm9DZRwim_KYOmSQgYf0IrQu_xw&oe=6848666D" alt="Maharashtra Emblem" class="left" />
+    <img src="https://resize.indiatvnews.com/en/resize/newbucket/1200_-/2022/05/maharashtra-secretariat-pti-image-1652864292.jpg" alt="Mantralaya Building" class="right" />
+    <div style="font-size: 1.5rem; font-weight: bold;">FSI & Sanction Cost Calculator – Maharashtra Government</div>
+  </header>
+
+  <div style="background: #ffc107; color: #002147; font-weight: bold; padding: 0.7rem 1rem; text-align: center; overflow: hidden; white-space: nowrap;">
+    <marquee behavior="scroll" direction="left">Note: For Construction, Designing, Consultation, Supervision, Material related work contact Ar. Prabal (contact number below)</marquee><br><marquee behavior="scroll" direction="left" style="color: blue;">Plot, Flats, Land, Shops, Bunglow, Commercial Spaces, Office Space - Available For Buy and Sell. Contact: 8830236556 | प्लॉट, फ्लैट्स, जमीन, दुकानें, बंगला, कमर्शियल स्पेस, ऑफिस स्पेस - खरीदने और बेचने के लिए संपर्क करें: 8830236556</marquee>
+  </div>
+
+  <div class="container">
+    <label>Unit:
+      <select id="unitToggle" onchange="updateUnitLabel()">
+        <option value="sqm">Square Meter</option>
+        <option value="sqft">Square Feet</option>
+      </select>
+    </label>
+    <label>Zone:
+      <select id="zone">
+        <option value="non-congested">Non-Congested</option>
+        <option value="congested">Congested</option>
+      </select>
+    </label>
+    <label>Road Width (m):
+      <input type="number" id="roadWidth" step="0.1">
+    </label>
+    <label id="plotLabel">Plot Area (sq.m):
+      <input type="number" id="plotSize" step="1">
+    </label>
+    <label>Building Use:
+      <select id="useType">
+        <option value="residential">Residential</option>
+        <option value="commercial">Commercial</option>
+        <option value="industrial">Industrial</option>
+      </select>
+    </label>
+    <label>Building Height (m):
+      <input type="number" id="height" step="0.1">
+    </label>
+    <label>ASR Rate (₹/sq.m):
+      <input type="number" id="asrRate" step="100" value="10000">
+    </label>
+    <label><input type="checkbox" id="includeLaborCess" checked> Include Labor Cess (1% of construction cost)</label>
+    <label><input type="checkbox" id="includeNOC" checked> Include NOC/Service Charges (e.g. Fire, Water)</label>
+    <label><input type="checkbox" id="includePremiumTDR" checked> Include Premium & TDR Charges</label>
+    <button onclick="calculateValues()">Calculate</button>
+    <div id="output"></div>
+    <div id="costOutput"></div>
+  </div>
+
+  <div class="about">
+    <p><strong>Ar. Prabal R Satiwale</strong> – 8830236556<br>For more information, contact via WhatsApp or Call.</p>
+  </div>
+
+  <script>
+    function updateUnitLabel() {
+      const unit = document.getElementById('unitToggle').value;
+      const plotLabel = document.getElementById('plotLabel');
+      plotLabel.innerHTML = `Plot Area (${unit === 'sqm' ? 'sq.m' : 'sq.ft'}): <input type="number" id="plotSize" step="1">`;
+    }
+
+    function calculateValues() {
+      const unit = document.getElementById("unitToggle").value;
+      const conversionFactor = unit === "sqft" ? 0.092903 : 1;
+
+      const zone = document.getElementById("zone").value;
+      const roadWidth = parseFloat(document.getElementById("roadWidth").value);
+      const plotSizeRaw = parseFloat(document.getElementById("plotSize").value);
+      const plotSize = plotSizeRaw * conversionFactor;
+      const height = parseFloat(document.getElementById("height").value) || 0;
+      const asrRate = parseFloat(document.getElementById("asrRate").value);
+      const includeLaborCess = document.getElementById("includeLaborCess").checked;
+      const includeNOC = document.getElementById("includeNOC").checked;
+      const includePremiumTDR = document.getElementById("includePremiumTDR").checked;
+
+      let fsi = 1.0;
+      if (zone === "non-congested") {
+        if (roadWidth >= 30) fsi = 2.5;
+        else if (roadWidth >= 24) fsi = 2.0;
+        else if (roadWidth >= 18) fsi = 1.8;
+        else if (roadWidth >= 12) fsi = 1.5;
+        else if (roadWidth >= 9) fsi = 1.2;
+        else fsi = 1.1;
+      }
+
+      const premiumFSI = includePremiumTDR ? fsi * 0.5 : 0;
+      const tdr = includePremiumTDR ? fsi * 0.5 : 0;
+      const totalFSI = fsi + premiumFSI + tdr;
+
+      const basicBuiltup = plotSize * fsi;
+      const premiumBuiltup = plotSize * premiumFSI;
+      const tdrBuiltup = plotSize * tdr;
+      const totalBuiltup = plotSize * totalFSI;
+
+      const baseSide = zone === 'non-congested' ? (roadWidth >= 18 ? 2 : roadWidth >= 15 ? 1.5 : 1) : (plotSize > 4000 ? 1.5 : plotSize > 1000 ? 1 : 0);
+      const sideExtra = height > 15 ? ` (${Math.min(height / 5, 12).toFixed(1)} due to height)` : '';
+      const setbackSide = `${baseSide}${sideExtra}`;
+      const setbackRear = setbackSide;
+      const setbackFront = roadWidth < 6 ? 1.5 : 3;
+
+      document.getElementById("output").innerHTML = `
+        <strong>Basic FSI:</strong> ${fsi.toFixed(2)}<br>
+        <strong>Premium FSI:</strong> ${premiumFSI.toFixed(2)}<br>
+        <strong>TDR:</strong> ${tdr.toFixed(2)}<br>
+        <strong>Total Potential FSI:</strong> ${totalFSI.toFixed(2)}<br><br>
+        <strong>Front Setback:</strong> ${setbackFront.toFixed(1)} m<br>
+        <strong>Side Setback:</strong> ${setbackSide} m<br>
+        <strong>Rear Setback:</strong> ${setbackRear} m
+      `;
+
+      const premiumFSICost = premiumBuiltup * (asrRate * 0.35);
+      const tdrCost = tdrBuiltup * (asrRate * 0.35);
+      const devCharges = totalBuiltup * 400;
+      const scrutinyFees = totalBuiltup * 15;
+      const infraFees = totalBuiltup * 200;
+      const laborCess = includeLaborCess ? totalBuiltup * 20000 * 0.01 : 0;
+      const nocFees = includeNOC ? 50000 : 0;
+
+      const totalCostWithPremium = premiumFSICost + tdrCost + devCharges + scrutinyFees + infraFees + laborCess + nocFees;
+      const totalCostWithoutPremium = devCharges + scrutinyFees + infraFees + laborCess + nocFees;
+
+      const unitLabel = unit === 'sqft' ? 'sqft' : 'sqm';
+
+      document.getElementById("costOutput").innerHTML = `
+        <strong>Built-up Area:</strong><br>
+        - Basic: ${(basicBuiltup / conversionFactor).toFixed(2)} ${unitLabel}<br>
+        - Premium: ${(premiumBuiltup / conversionFactor).toFixed(2)} ${unitLabel}<br>
+        - TDR: ${(tdrBuiltup / conversionFactor).toFixed(2)} ${unitLabel}<br>
+        - <strong>Total:</strong> ${(totalBuiltup / conversionFactor).toFixed(2)} ${unitLabel}<br><br>
+        <strong>Charges:</strong><br>
+        ${includePremiumTDR ? `- Premium FSI Charges: ₹${premiumFSICost.toLocaleString()}<br>` : ''}
+        ${includePremiumTDR ? `- TDR Charges: ₹${tdrCost.toLocaleString()}<br>` : ''}
+        - Development Charges: ₹${devCharges.toLocaleString()}<br>
+        - Scrutiny Fees: ₹${scrutinyFees.toLocaleString()}<br>
+        - Infrastructure Fees: ₹${infraFees.toLocaleString()}<br>
+        ${includeLaborCess ? `- Labor Cess (1%): ₹${laborCess.toLocaleString()}<br>` : ''}
+        ${includeNOC ? `- NOC/Service Charges: ₹${nocFees.toLocaleString()}<br>` : ''}
+        <br><strong style="color:#c41d7f">Total Estimated Cost (With Premium & TDR):</strong> ₹${totalCostWithPremium.toLocaleString()}<br>
+        <strong style="color:#c41d7f">Total Estimated Cost (Without Premium & TDR):</strong> ₹${totalCostWithoutPremium.toLocaleString()}
+      `;
+    }
+  </script>
+</body>
+</html>
